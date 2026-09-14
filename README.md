@@ -261,6 +261,8 @@ Two things to know before you start:
 - Read `test/fixtures/README.md` before touching the fixture. It explains why the fixture's git directory is stored as `dot-git/`.
 - A rule that no test exercises will fail the suite. `test/run.js` keeps a table of inputs for rules the fixture cannot cover, and asserts that every rule ID declared in `src/rules/` appears in one of them. Add your rule there and the guard stays honest.
 
+Found a problem with the scanner itself — a vector it misses, an input that crashes it? Report it privately rather than in an issue: see [SECURITY.md](SECURITY.md).
+
 ```bash
 npm test          # 84 tests, no dependencies
 npm run demo      # scan the hostile fixture and print the report

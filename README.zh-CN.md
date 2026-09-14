@@ -253,6 +253,8 @@ for d in ~/src/*/; do gitspawn-scan "$d" --short -q; done
 - 改夹具前先读 `test/fixtures/README.md`，里面解释了为什么它的 git 目录存成了 `dot-git/`。
 - **一条没有任何测试覆盖的规则会让测试套件失败。** `test/run.js` 里维护了一张表，专门放夹具覆盖不到的规则所需的输入，并且断言 `src/rules/` 里声明过的每一个规则 ID 都出现在其中。新加规则时把它补进这张表，这道守卫才作数。
 
+发现扫描器本身的问题——漏掉了一个执行入口，或者某个输入能把它弄崩？不要在 issue 里公开，走[私密报告渠道](SECURITY.md)。
+
 ```bash
 npm test          # 84 个测试，零依赖
 npm run demo      # 扫那个恶意夹具，把报告打出来
