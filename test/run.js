@@ -393,6 +393,16 @@ test('a missing path exits 2', () => {
   assert.strictEqual(run([path.join(os.tmpdir(), 'gitspawn-does-not-exist-xyz')]).status, 2);
 });
 
+test('a path that is a file exits 2 rather than reporting clean', () => {
+  // Scanning a file as if it were a folder finds nothing and exits 0, which
+  // reads as a pass. The scanner must never answer "clean" by accident.
+  const file = path.join(WORK, 'not-a-directory.txt');
+  fs.writeFileSync(file, 'x');
+  const r = run([file]);
+  assert.strictEqual(r.status, 2);
+  assert.match(r.stderr, /not a directory/);
+});
+
 test('the scanner does not modify what it scans', () => {
   const before = fs.readFileSync(path.join(EVIL, '.git', 'config'), 'utf8');
   scan(EVIL);

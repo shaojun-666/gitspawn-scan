@@ -89,6 +89,12 @@ function main() {
     process.stderr.write(`gitspawn-scan: no such path: ${target}\n`);
     return 2;
   }
+  // A file would scan as an empty folder and report "clean", which is the one
+  // answer this tool must never give by accident.
+  if (!fs.statSync(target).isDirectory()) {
+    process.stderr.write(`gitspawn-scan: not a directory: ${target}\n`);
+    return 2;
+  }
 
   let result;
   try {

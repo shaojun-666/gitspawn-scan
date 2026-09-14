@@ -60,7 +60,7 @@ the code, does not run `git` inside the folder, and does not write to it.
 
 Pointing a scanner at a folder you already suspect is the one case where you
 cannot afford it to be sloppy, so it is also the case the test suite pins down:
-one of the 70 tests asserts the scanner leaves the hostile fixture byte-for-byte
+one of the 71 tests asserts the scanner leaves the hostile fixture byte-for-byte
 unchanged.
 
 You can also read the whole thing before running it. It is about 1,400 lines with
@@ -284,7 +284,7 @@ prove each one fires. Read `test/fixtures/README.md` before touching it — it
 explains why the fixture's git directory is stored as `dot-git/`.
 
 ```bash
-npm test          # 70 tests, no dependencies
+npm test          # 71 tests, no dependencies
 npm run demo      # scan the hostile fixture and print the report
 ```
 
