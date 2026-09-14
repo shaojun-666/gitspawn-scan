@@ -1,5 +1,7 @@
 # gitspawn-scan
 
+[![test](https://github.com/shaojun-666/gitspawn-scan/actions/workflows/test.yml/badge.svg)](https://github.com/shaojun-666/gitspawn-scan/actions/workflows/test.yml)
+
 **A folder can run code at you before your AI agent finishes opening it. Check first.**
 
 ```bash
@@ -282,8 +284,14 @@ prove each one fires. Read `test/fixtures/README.md` before touching it — it
 explains why the fixture's git directory is stored as `dot-git/`.
 
 ```bash
-npm test     # 70 tests, no dependencies
+npm test          # 70 tests, no dependencies
+npm run demo      # scan the hostile fixture and print the report
 ```
+
+`npm run demo` prints the sample output shown at the top of this README. It
+builds the fixture's git directory in a temp tree rather than scanning
+`test/fixtures/evil-repo` in place — the fixture ships its git directory as
+`dot-git/`, so a direct scan would only show the findings outside `.git`.
 
 ## License
 

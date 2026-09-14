@@ -13,36 +13,15 @@ const { render } = require('../src/report');
 const { parseGitConfig, isBooleanish } = require('../src/gitconfig');
 const { SEVERITY_RANK } = require('../src/util');
 
-const FIXTURES = path.join(__dirname, 'fixtures');
 const BIN = path.join(__dirname, '..', 'bin', 'gitspawn-scan.js');
 
-// Git refuses to track anything inside a directory named `.git`, so the
-// fixtures keep theirs as `dot-git/` and are given a real one here. Building
-// the working copies in a temp tree also means no stray `git init` can turn the
-// fixture on disk into a live hostile repository.
-const WORK = fs.mkdtempSync(path.join(os.tmpdir(), 'gitspawn-fixtures-'));
+// Fixtures are materialised into a temp tree so the tests see a real `.git`.
+// See test/fixtures/README.md for why they ship as `dot-git/`.
+const { workDir, materialize } = require('./materialize');
 
-// Hand-rolled rather than fs.cpSync: cpSync aborts the process outright in some
-// environments, even when copying a trivial directory inside the cwd.
-function copyTree(src, dest) {
-  fs.mkdirSync(dest, { recursive: true });
-  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
-    const from = path.join(src, entry.name);
-    const to = path.join(dest, entry.name);
-    if (entry.isDirectory()) copyTree(from, to);
-    else fs.copyFileSync(from, to);
-  }
-}
-
-function materialize(name) {
-  const dest = path.join(WORK, name);
-  copyTree(path.join(FIXTURES, name), dest);
-  fs.renameSync(path.join(dest, 'dot-git'), path.join(dest, '.git'));
-  return dest;
-}
-
-const EVIL = materialize('evil-repo');
-const CLEAN = materialize('clean-repo');
+const WORK = workDir();
+const EVIL = materialize('evil-repo', WORK);
+const CLEAN = materialize('clean-repo', WORK);
 
 let passed = 0;
 let failed = 0;
