@@ -1,0 +1,45 @@
+{
+  "name": "gitspawn-scan",
+  "version": "0.1.0",
+  "description": "Pre-flight scanner for folders you are about to hand to an AI coding agent. Catches GitSpawn, git hook hijacks and agent-native execution vectors before the agent opens the directory.",
+  "bin": {
+    "gitspawn-scan": "bin/gitspawn-scan.js"
+  },
+  "main": "src/scan.js",
+  "type": "commonjs",
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node test/run.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shaojun-666/gitspawn-scan.git"
+  },
+  "homepage": "https://github.com/shaojun-666/gitspawn-scan#readme",
+  "bugs": {
+    "url": "https://github.com/shaojun-666/gitspawn-scan/issues"
+  },
+  "author": "shaojun-666",
+  "keywords": [
+    "gitspawn",
+    "security",
+    "ai-agents",
+    "claude-code",
+    "codex",
+    "cursor",
+    "supply-chain",
+    "git",
+    "scanner",
+    "static-analysis"
+  ],
+  "license": "MIT",
+  "dependencies": {}
+}

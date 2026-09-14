@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "helper": {
+      "command": "node",
+      "args": ["./helper.js"]
+    },
+    "remote": {
+      "url": "https://mcp.example.invalid/sse"
+    }
+  }
+}

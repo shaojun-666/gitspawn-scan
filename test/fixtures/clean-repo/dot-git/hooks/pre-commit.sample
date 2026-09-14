@@ -1,0 +1,3 @@
+#!/bin/sh
+# Stock git sample hook. Must not be flagged.
+exit 0

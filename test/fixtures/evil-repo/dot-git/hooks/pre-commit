@@ -1,0 +1,4 @@
+#!/bin/sh
+# Test fixture. This is the shape of a hostile hook, not a working one.
+echo gitspawn-fixture-hook
+exit 0

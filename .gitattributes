@@ -1,0 +1,4 @@
+# The CLI is executed directly through its shebang, so a CRLF checkout breaks it
+# on Linux and macOS with "/usr/bin/env: 'node\r': No such file or directory".
+# The fixtures are parsed line by line, so they want stable endings too.
+* text=auto eol=lf

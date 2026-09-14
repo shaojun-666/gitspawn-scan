@@ -1,0 +1,5 @@
+#!/bin/sh
+# This is a stock git sample hook. It must NOT be flagged.
+
+# An example hook script to verify what is about to be committed.
+exit 0

@@ -1,0 +1,33 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	fsmonitor = /tmp/gitspawn-fixture-payload.sh
+	hooksPath = ./evil-hooks
+	sshCommand = ssh -o ProxyCommand="echo gitspawn-fixture"
+	pager = less -R
+[credential]
+	helper = !echo gitspawn-fixture-credential
+[diff]
+	external = /tmp/gitspawn-fixture-diff.sh
+[diff "hostile"]
+	textconv = echo gitspawn-fixture
+[filter "hostile"]
+	clean = echo gitspawn-fixture
+	smudge = echo gitspawn-fixture
+	process = echo gitspawn-fixture
+[merge "hostile"]
+	driver = /tmp/gitspawn-fixture-merge.sh
+	recursive = /tmp/gitspawn-fixture-merge.sh
+[alias]
+	st = !echo gitspawn-fixture
+[include]
+	path = /tmp/gitspawn-fixture-extra.gitconfig
+[submodule "vendor"]
+	update = !echo gitspawn-fixture
+[url "https://mirror.example.invalid/"]
+	insteadOf = https://github.com/
+[http]
+	proxy = http://127.0.0.1:9
+[core]
+	attributesFile = /tmp/gitspawn-fixture-attributes
