@@ -5,15 +5,15 @@
 **A folder can run code at you before your AI agent finishes opening it. Check first.**
 
 ```bash
-npx gitspawn-scan ~/Downloads/that-repo-someone-sent-me
+npx github:shaojun-666/gitspawn-scan ~/Downloads/that-repo-someone-sent-me
 ```
 
-One command. Nothing to install, no dependencies. It reads files as text and
-tells you what *will execute* when you open the folder — before you point an
-agent at it.
+One command. Nothing to install, no dependencies, no npm package in the middle.
+It reads files as text and tells you what *will execute* when you open the
+folder — before you point an agent at it.
 
 ```console
-$ npx gitspawn-scan ~/Downloads/pitch-deck-optimizer
+$ npx github:shaojun-666/gitspawn-scan ~/Downloads/pitch-deck-optimizer
 
 gitspawn-scan 0.1.0
 target  /home/you/Downloads/pitch-deck-optimizer
@@ -68,28 +68,32 @@ no dependencies — nothing happens that you cannot trace in `src/`.
 
 ## Install
 
-Node 18+ and zero dependencies. That matters more here than in most projects: a
+Node 18+, zero dependencies, and no npm package. The last one is deliberate: a
 security tool that pulls a dependency tree is asking you to do the thing it is
-warning you about.
+warning you about, and one installed from a registry is asking you to trust an
+account you cannot read.
+
+Run it straight from this repository:
 
 ```bash
-npx gitspawn-scan .                   # scan the folder you are in
-npx gitspawn-scan ~/Downloads/thing   # scan something you were sent
+npx github:shaojun-666/gitspawn-scan .                   # the folder you are in
+npx github:shaojun-666/gitspawn-scan ~/Downloads/thing   # something you were sent
 ```
 
-To keep it around instead of re-fetching:
+There is no registry in the middle. `npx` resolves the code you can read here.
+
+To keep a copy around — and to read the source before its first run, which is
+rather the point of a tool like this — clone it:
 
 ```bash
-npm install -g gitspawn-scan
-```
-
-**From a clone** (for contributing, or before the npm release):
-
-```bash
-git clone https://github.com/shaojun-666/gitspawn-scan
-cd gitspawn-scan && npm test
+git clone --depth 1 https://github.com/shaojun-666/gitspawn-scan
+cd gitspawn-scan
 node bin/gitspawn-scan.js /path/to/suspect-folder
+npm test          # 71 tests, no dependencies
 ```
+
+The rest of this README writes the command as `gitspawn-scan`. Substitute
+whichever of the two forms above you used.
 
 ## Why this exists
 
@@ -226,6 +230,9 @@ Exit codes: `0` nothing at or above `--fail-on`, `1` findings at or above it,
 
 ### Recipes
 
+Below, `gitspawn-scan` stands for the command from [Install](#install). If you
+are copy-pasting, that is `npx github:shaojun-666/gitspawn-scan`.
+
 ```bash
 # Scan a folder and only see what actually matters
 npx gitspawn-scan ~/Downloads/thing --quiet
@@ -245,7 +252,7 @@ for d in ~/src/*/; do npx gitspawn-scan "$d" --short -q; done
 Catch a hostile config arriving through a pull request or a vendored dependency:
 
 ```yaml
-- run: npx gitspawn-scan . --fail-on high
+- run: npx github:shaojun-666/gitspawn-scan . --fail-on high
 ```
 
 ## What it does not do
