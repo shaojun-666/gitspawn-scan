@@ -1,5 +1,7 @@
 # gitspawn-scan
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 [![test](https://github.com/shaojun-666/gitspawn-scan/actions/workflows/test.yml/badge.svg)](https://github.com/shaojun-666/gitspawn-scan/actions/workflows/test.yml)
 
 **A folder can run code at you before your AI agent finishes opening it. Check first.**
