@@ -318,6 +318,94 @@ test('scanning a folder above the hostile fixture finds everything the direct sc
 });
 
 // ---------------------------------------------------------------------------
+// Rule reachability.
+//
+// The hostile fixture covers most of the rule set, but not all of it. Some
+// rules need inputs that would look out of place in a fixture whose job is to
+// read as one coherent malicious repository — a setup.py, a husky hook, a
+// devcontainer. Two more only fire on a file that cannot be parsed at all,
+// which the fixture has no reason to contain.
+//
+// The last test in this block is the one that earns its keep: add a rule to
+// src/rules/ without pinning it here and it fails. Without it a rule can
+// quietly stop matching after a refactor while every other test stays green,
+// which is a false negative in a tool whose entire output is a list of things
+// that will run.
+
+function builtRepo(name, build) {
+  const dir = path.join(WORK, `probe-${name}`);
+  fs.rmSync(dir, { recursive: true, force: true });
+  fs.mkdirSync(path.join(dir, '.git'), { recursive: true });
+  fs.writeFileSync(path.join(dir, '.git', 'config'), '[core]\n\trepositoryformatversion = 0\n');
+  build(dir);
+  return dir;
+}
+
+function put(dir, rel, text) {
+  fs.mkdirSync(path.join(dir, path.dirname(rel)), { recursive: true });
+  fs.writeFileSync(path.join(dir, rel), text);
+}
+
+function setConfig(dir, text) {
+  fs.writeFileSync(path.join(dir, '.git', 'config'),
+    `[core]\n\trepositoryformatversion = 0\n${text}`);
+}
+
+const PROBES = [
+  ['GS008', 'gpg.program', (d) => setConfig(d, '[gpg]\n\tprogram = /tmp/evil-gpg\n')],
+  ['GS013', 'core.editor', (d) => setConfig(d, '[core]\n\teditor = /tmp/evil-editor\n')],
+  ['GS014', 'core.gitProxy', (d) => setConfig(d, '[core]\n\tgitProxy = /tmp/evil-proxy\n')],
+  ['GS020', 'a .git pointer that does not escape', (d) => {
+    fs.rmSync(path.join(d, '.git'), { recursive: true, force: true });
+    fs.mkdirSync(path.join(d, 'actual'));
+    fs.writeFileSync(path.join(d, '.git'), 'gitdir: ./actual\n');
+  }],
+  ['GS030', 'an unparseable agent settings file', (d) => put(d, '.claude/settings.json', '{ hooks: ')],
+  ['GS033', 'an unparseable MCP file', (d) => put(d, '.mcp.json', '{ mcpServers: ')],
+  ['GS041', 'a devcontainer lifecycle command',
+    (d) => put(d, '.devcontainer/devcontainer.json', JSON.stringify({ postCreateCommand: 'echo hi' }))],
+  ['GS046', 'a committed npm auth token',
+    (d) => put(d, '.npmrc', '//registry.npmjs.org/:_authToken=deadbeefcafe\n')],
+  ['GS047', 'yarnPath',
+    (d) => put(d, '.yarnrc.yml', 'yarnPath: .yarn/releases/yarn-4.0.0.cjs\n')],
+  ['GS048', 'a yarn plugin loaded from the repository',
+    (d) => put(d, '.yarnrc.yml', 'plugins:\n  - path: ./.yarn/evil.cjs\n')],
+  ['GS050', 'setup.py', (d) => put(d, 'setup.py', 'import os\n')],
+  ['GS051', 'a husky hook', (d) => put(d, '.husky/pre-commit', '#!/bin/sh\n')],
+];
+
+for (const [id, what, build] of PROBES) {
+  test(`${id} fires on ${what}`, () => {
+    const fired = ids(scan(builtRepo(id, build)));
+    assert.ok(fired.includes(id),
+      `${id} did not fire; got [${[...new Set(fired)].sort().join(', ')}]`);
+  });
+}
+
+// Every rule ID the source declares, however each file spells the field:
+// gitconfig.js uses `id:`, the other three use `ruleId:`, and two are passed
+// positionally to unparseable().
+function declaredRuleIds() {
+  const dir = path.join(__dirname, '..', 'src', 'rules');
+  const found = new Set();
+  for (const file of fs.readdirSync(dir)) {
+    const text = fs.readFileSync(path.join(dir, file), 'utf8');
+    for (const m of text.matchAll(/\b(?:id|ruleId):\s*'(GS\d{3})'/g)) found.add(m[1]);
+    for (const m of text.matchAll(/unparseable\([^,]+,\s*'(GS\d{3})'/g)) found.add(m[1]);
+  }
+  return found;
+}
+
+test('every declared rule is pinned by a test', () => {
+  const reached = new Set(evilIds);
+  for (const [id, , build] of PROBES) {
+    for (const fired of ids(scan(builtRepo(`${id}-pin`, build)))) reached.add(fired);
+  }
+  const missing = [...declaredRuleIds()].filter((id) => !reached.has(id)).sort();
+  assert.deepStrictEqual(missing, [], `declared but never exercised: ${missing.join(', ')}`);
+});
+
+// ---------------------------------------------------------------------------
 process.stdout.write('\nreport and CLI\n');
 
 test('text report renders without colour when asked', () => {

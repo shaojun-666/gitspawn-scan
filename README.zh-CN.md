@@ -107,6 +107,8 @@ Harden every repository at once: git config --global core.fsmonitor false
 | `GS049` `package.json` 的 lifecycle 脚本 | `prepare` 和 `postinstall` 是正常构建步骤。这是 npm 最老的攻击面，也是大家早就不看的那一个 |
 | `GS042` `.envrc` | 项目用 direnv 就是正常的。它只是提醒你：进这个目录就会执行 |
 | `GS044` 被改过的 npm 源 | 公司内网镜像就这么干，故意的 |
+| `GS041` devcontainer 的生命周期命令 | `pallets/flask` 就带一个。看一眼它指定的脚本，然后过 |
+| `GS050` `setup.py` | `psf/requests` 就有。从源码安装会执行这个文件 |
 | `GS040` VS Code 的 `runOn: folderOpen` | 确实有项目想一打开就跑构建 |
 | `GS035` `CLAUDE.md` / `AGENTS.md` | 现在哪个项目没有。报成 `info`，是因为它是提示注入的标准投放渠道，不是因为它恶意 |
 
@@ -137,7 +139,7 @@ npx github:shaojun-666/gitspawn-scan ~/Downloads/thing   # 扫别人发你的
 git clone --depth 1 https://github.com/shaojun-666/gitspawn-scan
 cd gitspawn-scan
 node bin/gitspawn-scan.js /path/to/suspect-folder
-npm test          # 71 个测试，零依赖
+npm test          # 84 个测试，零依赖
 ```
 
 下面为了写起来简短，命令都写作 `gitspawn-scan`，你用上面哪种方式都可以。
@@ -146,7 +148,7 @@ npm test          # 71 个测试，零依赖
 
 安全，它本来就是为这个场景写的。整个程序只做一件事：把文件当文本读，然后告诉你读到了什么。它不会 import 你的代码，不会在文件夹里跑 git，也不会往里写任何东西。
 
-这一点有测试盯着。71 个测试里有一个专门断言：扫描器跑完之后，那个恶意夹具和跑之前逐字节一致。
+这一点有测试盯着。84 个测试里有一个专门断言：扫描器跑完之后，那个恶意夹具和跑之前逐字节一致。
 
 你也可以先读完再跑。全部代码大概 1400 行，没有依赖，`src/` 里不存在你追不到的东西。
 
@@ -246,10 +248,13 @@ for d in ~/src/*/; do gitspawn-scan "$d" --short -q; done
 
 最有用的贡献是加规则族。规则在 `src/rules/`，测试在 `test/run.js`，`test/fixtures/evil-repo/` 那个夹具的作用是保证每条规则都真的会触发。
 
-动夹具之前请先读 `test/fixtures/README.md`，里面有解释为什么它的 git 目录存成了 `dot-git/`。
+动手之前有两件事要知道：
+
+- 改夹具前先读 `test/fixtures/README.md`，里面解释了为什么它的 git 目录存成了 `dot-git/`。
+- **一条没有任何测试覆盖的规则会让测试套件失败。** `test/run.js` 里维护了一张表，专门放夹具覆盖不到的规则所需的输入，并且断言 `src/rules/` 里声明过的每一个规则 ID 都出现在其中。新加规则时把它补进这张表，这道守卫才作数。
 
 ```bash
-npm test          # 71 个测试，零依赖
+npm test          # 84 个测试，零依赖
 npm run demo      # 扫那个恶意夹具，把报告打出来
 ```
 
